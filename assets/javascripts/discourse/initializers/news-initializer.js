@@ -1,4 +1,5 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import { i18n } from "discourse-i18n";
 import NewsHeaderButton from "../components/news-header-button";
 
 export default {
@@ -12,6 +13,15 @@ export default {
 
     withPluginApi("1.6.0", (api) => {
       api.headerButtons.add("news", NewsHeaderButton, { before: "auth" });
+
+      if (api.addSidebarSectionLink) {
+        api.addSidebarSectionLink("community", {
+          name: "news",
+          route: "news",
+          text: i18n("filters.news.title"),
+          icon: siteSettings.discourse_news_icon || "newspaper",
+        });
+      }
 
       api.modifyClass(
         "model:topic",
