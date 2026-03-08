@@ -8,9 +8,10 @@ export default class NewsRoute extends buildTopicRoute("news") {
   @service site;
   @service store;
 
-  model(data, transition) {
+  async model(data, transition) {
+    let newsModel;
     if (this.siteSettings.discourse_news_source === "rss") {
-      return ajax("/news")
+      newsModel = await ajax("/news")
         .then((result) => ({
           filter: "",
           topics: result.map((t) => ({
@@ -23,26 +24,30 @@ export default class NewsRoute extends buildTopicRoute("news") {
         }))
         .catch(popupAjaxError);
     } else {
-      return super.model(data, transition);
+      newsModel = await super.model(data, transition);
     }
-  }
 
-  afterModel() {
     if (this.siteSettings.discourse_news_sidebar_topic_list) {
       const filter =
         this.siteSettings.discourse_news_sidebar_topic_list_filter || "latest";
-      return this.store.findFiltered("topicList", { filter }).then((list) => {
+      try {
+        const list = await this.store.findFiltered("topicList", { filter });
         const limit =
           this.siteSettings.discourse_news_sidebar_topic_list_limit || 10;
-        this.sidebarTopics = list.topics.slice(0, limit);
-      });
+        newsModel.sidebarTopics = list.topics.slice(0, limit);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Error fetching sidebar topics:", e);
+      }
     }
+
+    return newsModel;
   }
 
   setupController(controller, model) {
     super.setupController(controller, model);
-    if (this.sidebarTopics) {
-      controller.set("sidebarTopics", this.sidebarTopics);
+    if (model.sidebarTopics) {
+      controller.sidebarTopics = model.sidebarTopics;
     }
   }
 }

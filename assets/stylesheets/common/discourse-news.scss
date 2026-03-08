@@ -62,14 +62,14 @@ body.navigation-news #main-outlet {
         width: 100%;
         display: block;
 
-        td {
-          padding: 0;
-        }
-
         tr {
           margin-top: 20px;
           display: inline-block;
           width: 100%;
+
+          td:not(.news-item) {
+            display: none;
+          }
         }
 
         tr.topic-list-item:first-of-type {
