@@ -28,10 +28,7 @@ export default class NewsRoute extends buildTopicRoute("news") {
   }
 
   afterModel() {
-    if (
-      this.siteSettings.discourse_news_sidebar_topic_list &&
-      !this.site.mobileView
-    ) {
+    if (this.siteSettings.discourse_news_sidebar_topic_list) {
       const filter =
         this.siteSettings.discourse_news_sidebar_topic_list_filter || "latest";
       return this.store.findFiltered("topicList", { filter }).then((list) => {
